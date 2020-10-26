@@ -2,7 +2,6 @@
 
 #define fech 40000 // Fréquence d'échantillonnage souhaitée
 #define NB_COEFF 21 // Nombre de coefficients du filtre RIF
-//du filtre RIF pour gérer la pile glissante d'echantillons
 
 Serial pc(USBTX, USBRX);
 
@@ -21,16 +20,6 @@ float coeff_filtre[NB_COEFF] = {0.0026603,0.0045069,0.0091798,0.017556,
                                 0.062429,0.045263,0.029809,0.017556,0.0091798,
                                 0.0045069,0.0026603
                                } ;
-// Passe pas généré avec Matlab outil filterDesign
-// Lowpass, FIR leas-square, fe = 40 kHz, ordre 20,
-// fpass = 1000 Hz, fstop = 2000 Hz
-/*float coeff_filtre[NB_COEFF] = {
-    0.01815973036,  0.02545970678,  0.03320529684,  0.04110899568,  0.04885519296,
-    0.05611754954,  0.06257762015,   0.0679435432,  0.07196751237,  0.07446079701,
-    0.07530529052,  0.07446079701,  0.07196751237,   0.0679435432,  0.06257762015,
-    0.05611754954,  0.04885519296,  0.04110899568,  0.03320529684,  0.02545970678,
-    0.01815973036
-};*/
 
 // Temps de traitement d'un échantillon 1.3 us
 float fir(float xn)
@@ -45,48 +34,6 @@ float fir(float xn)
     }
     return(yn);
 }
-
-// Deux versions avec des pointeurs, moins performantes que la version de base
-// Temps de traitement d'un échantillon = 1.44 us
-/*
-float fir(float xn)
-{
-    static float in[TAILLE_TAB] ;
-    float *pt_in , *pt_coeff ;
-    int k ;
-    float yn = 0 ;
-    pt_in = in ;
-    *pt_in = xn ;
-    pt_in = in + NB_COEFF - 1 ;
-    pt_coeff = coeff_filtre + NB_COEFF - 1 ;
-
-    for (k = NB_COEFF - 1 ; k >=0 ; k--) {
-        yn += *pt_in * (*pt_coeff) ;
-        *(pt_in + 1) = *(pt_in) ;
-        pt_in-- ;
-        pt_coeff--;
-    }
-    return(yn);
-}
-*/
-// Temps de traitement d'un échantillon = 1.96 us
-/*float fir(float xn)
-{
-    static float in[TAILLE_TAB] ;
-    float *pt_in , *pt_coeff ;
-    int k ;
-    float yn = 0 ;
-    pt_in = in ;
-    *pt_in = xn ;
-    pt_in = in + NB_COEFF - 1 ;
-    pt_coeff = coeff_filtre + NB_COEFF - 1 ;
-
-    for (k = NB_COEFF - 1 ; k >=0 ; k--) {
-        yn += *pt_in-- * (*pt_coeff--) ;
-        *(pt_in) = *(pt_in - 1) ;
-    }
-    return(yn);
-}*/
 
 void filtrage()
 {
